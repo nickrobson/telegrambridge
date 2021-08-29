@@ -1,8 +1,9 @@
 {
   "schemaVersion": 1,
   "id": "${mod_id}",
-  "version": "${mod_version}",
   "name": "${mod_name}",
+  "version": "${mod_version}",
+  "license": "MIT",
 
   "description": "${mod_description}",
   "authors": [

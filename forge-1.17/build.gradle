@@ -78,6 +78,17 @@ minecraft {
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
+processResources {
+    inputs.property "version", project.version
+
+    filesMatching(["META-INF/mods.toml", "pack.mcmeta"]) {
+        expand "mod_id": project.mod_id,
+                "mod_version": project.mod_version,
+                "mod_name": project.mod_name,
+                "mod_description": project.mod_description
+    }
+}
+
 configurations {
     embed
     implementation.extendsFrom(embed)

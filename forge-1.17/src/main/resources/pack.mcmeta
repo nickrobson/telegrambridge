@@ -1,6 +1,6 @@
 {
     "pack": {
-        "description": "TelegramBridge resources",
+        "description": "${mod_name} resources",
         "pack_format": 7,
         "_comment": "1.17 uses pack format version 7"
     }
