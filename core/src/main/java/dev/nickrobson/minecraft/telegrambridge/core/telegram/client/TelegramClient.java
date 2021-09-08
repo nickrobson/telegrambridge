@@ -21,6 +21,7 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -120,6 +121,12 @@ public class TelegramClient {
         return get("getUpdates", params)
                 .thenApply(updatesResponse -> {
                     TelegramResponse<List<Update>> response = gson.fromJson(updatesResponse, updateListType);
+
+                    if (!response.ok) {
+                        logger.error("Failed to retrieve updates from Telegram ({}): {}", response.errorCode, response.description);
+                        return Collections.emptyList();
+                    }
+
                     return response.result;
                 });
     }
