@@ -1,12 +1,12 @@
 package dev.nickrobson.minecraft.telegrambridge.fabric;
 
 import dev.nickrobson.minecraft.telegrambridge.core.minecraft.MinecraftMessageDispatcher;
-import net.minecraft.network.MessageType;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.ChatType;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 
 import static dev.nickrobson.minecraft.telegrambridge.core.minecraft.MinecraftController.TELEGRAMBRIDGE_UUID;
 
@@ -18,10 +18,10 @@ public class FabricMessageDispatcher implements MinecraftMessageDispatcher {
             return;
         }
 
-        Text text = new LiteralText("").setStyle(Style.EMPTY)
-                .append(new LiteralText("[Telegram] ").setStyle(Style.EMPTY.withColor(Formatting.AQUA)))
-                .append(new LiteralText(messageText).setStyle(Style.EMPTY.withColor(Formatting.WHITE)));
+        Component text = new TextComponent("").setStyle(Style.EMPTY)
+                .append(new TextComponent("[Telegram] ").setStyle(Style.EMPTY.withColor(ChatFormatting.AQUA)))
+                .append(new TextComponent(messageText).setStyle(Style.EMPTY.withColor(ChatFormatting.WHITE)));
 
-        minecraftServer.getPlayerManager().broadcastChatMessage(text, MessageType.CHAT, TELEGRAMBRIDGE_UUID);
+        minecraftServer.getPlayerList().broadcastMessage(text, ChatType.CHAT, TELEGRAMBRIDGE_UUID);
     }
 }
