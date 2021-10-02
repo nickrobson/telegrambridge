@@ -80,9 +80,6 @@ public class TelegramClient {
         this.updatesFuture = getUpdates()
                 .whenComplete((updates, exception) -> {
                     if (exception != null) {
-                        if (exception instanceof InterruptedException) {
-                            isUpdatesPolling.set(false);
-                        }
                         logger.error("Failed to get updates", exception);
                         return;
                     }
@@ -95,16 +92,22 @@ public class TelegramClient {
                     } catch (Exception ex) {
                         logger.error("Failed to handle updates", ex);
                     }
+
                     for (Update update : updates) {
                         if (update.updateId > currentOffset.get()) {
                             this.currentOffset.set(update.updateId);
                         }
                     }
                 })
-                .thenRun(() -> {
+                .handle((updates, exception) -> {
+                    if (exception != null) {
+                        logger.error("Exception in update loop", exception);
+                    }
+
                     if (isUpdatesPolling.get()) {
                         pollForUpdatesLoop();
                     }
+                    return null;
                 });
     }
 
