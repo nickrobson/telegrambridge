@@ -5,6 +5,4 @@ pluginManagement {
     }
 }
 
-include 'core'
-include 'fabric-1.17'
-include 'forge-1.17'
+rootProject.name = 'TelegramBridge'
