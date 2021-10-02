@@ -1,12 +1,12 @@
 package dev.nickrobson.minecraft.telegrambridge.messaging;
 
 import dev.nickrobson.minecraft.telegrambridge.TelegramBridgeMod;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.ChatType;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.MessageType;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Style;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 
 public class MinecraftMessageDispatcher implements MessageDispatcher {
     @Override
@@ -16,10 +16,10 @@ public class MinecraftMessageDispatcher implements MessageDispatcher {
             return;
         }
 
-        Component text = new TextComponent("").setStyle(Style.EMPTY)
-                .append(new TextComponent("[Telegram] ").setStyle(Style.EMPTY.withColor(ChatFormatting.AQUA)))
-                .append(new TextComponent(messageText).setStyle(Style.EMPTY.withColor(ChatFormatting.WHITE)));
+        Text text = new LiteralText("").setStyle(Style.EMPTY)
+                .append(new LiteralText("[Telegram] ").setStyle(Style.EMPTY.withColor(Formatting.AQUA)))
+                .append(new LiteralText(messageText).setStyle(Style.EMPTY.withColor(Formatting.WHITE)));
 
-        minecraftServer.getPlayerList().broadcastMessage(text, ChatType.CHAT, MinecraftMessagingController.TELEGRAMBRIDGE_UUID);
+        minecraftServer.getPlayerManager().broadcastChatMessage(text, MessageType.CHAT, MinecraftMessagingController.TELEGRAMBRIDGE_UUID);
     }
 }

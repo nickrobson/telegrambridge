@@ -1,11 +1,11 @@
 package dev.nickrobson.minecraft.telegrambridge.mixin;
 
-import net.minecraft.network.Connection;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.ClientConnection;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.network.ServerGamePacketListenerImpl;
-import net.minecraft.server.network.TextFilter;
+import net.minecraft.server.filter.TextStream;
+import net.minecraft.server.network.ServerPlayNetworkHandler;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -14,26 +14,26 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import static dev.nickrobson.minecraft.telegrambridge.TelegramBridgeMod.MINECRAFT_CONTROLLER;
 
-@Mixin(ServerGamePacketListenerImpl.class)
+@Mixin(ServerPlayNetworkHandler.class)
 public class MixinServerPlayNetworkHandler {
     @Shadow
-    public ServerPlayer player;
+    public ServerPlayerEntity player;
 
     @Inject(method = "<init>", at = @At(value = "RETURN"))
-    public void onJoin(MinecraftServer server, Connection connection, ServerPlayer player, CallbackInfo ci) {
+    public void onJoin(MinecraftServer server, ClientConnection connection, ServerPlayerEntity player, CallbackInfo ci) {
         MINECRAFT_CONTROLLER.onPlayerJoin(player.getGameProfile().getName());
     }
 
     @Inject(method = "disconnect", at = @At(value = "RETURN"))
-    public void onLeave(Component component, CallbackInfo ci) {
+    public void onLeave(Text reason, CallbackInfo ci) {
         MINECRAFT_CONTROLLER.onPlayerLeave(player.getGameProfile().getName());
     }
 
     @Inject(
-            method = "handleChat(Lnet/minecraft/server/network/TextFilter$FilteredText;)V",
-            at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/server/players/PlayerList;broadcastMessage(Lnet/minecraft/network/chat/Component;Ljava/util/function/Function;Lnet/minecraft/network/chat/ChatType;Ljava/util/UUID;)V")
+            method = "handleMessage",
+            at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/server/PlayerManager;broadcast(Lnet/minecraft/text/Text;Ljava/util/function/Function;Lnet/minecraft/network/MessageType;Ljava/util/UUID;)V")
     )
-    public void onChatMessage(TextFilter.FilteredText message, CallbackInfo ci) {
+    public void onChatMessage(TextStream.Message message, CallbackInfo ci) {
         String messageText = message.getRaw();
         MINECRAFT_CONTROLLER.onPlayerChat(player.getGameProfile().getName(), messageText);
     }

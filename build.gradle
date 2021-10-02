@@ -19,7 +19,7 @@ repositories {
 dependencies {
     // To change the versions see the gradle.properties file
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings minecraft.officialMojangMappings()
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 
     compileOnly 'org.apache.commons:commons-lang3:3.8.1'
     compileOnly 'org.apache.logging.log4j:log4j-api:2.14.1'
