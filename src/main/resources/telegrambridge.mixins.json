@@ -6,8 +6,9 @@
   "mixins": [],
   "client": [],
   "server": [
-    "MixinServerPlayNetworkHandler",
-    "MixinServerPlayerEntity"
+    "MixinPlayerManager",
+    "MixinServerPlayerEntity",
+    "MixinServerPlayNetworkHandler"
   ],
   "injectors": {
     "defaultRequire": 1

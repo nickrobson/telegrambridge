@@ -1,11 +1,8 @@
 package dev.nickrobson.minecraft.telegrambridge.mixin;
 
-import net.minecraft.network.ClientConnection;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.filter.TextStream;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,16 +15,6 @@ import static dev.nickrobson.minecraft.telegrambridge.TelegramBridgeMod.MINECRAF
 public class MixinServerPlayNetworkHandler {
     @Shadow
     public ServerPlayerEntity player;
-
-    @Inject(method = "<init>", at = @At(value = "RETURN"))
-    public void onJoin(MinecraftServer server, ClientConnection connection, ServerPlayerEntity player, CallbackInfo ci) {
-        MINECRAFT_CONTROLLER.onPlayerJoin(player.getGameProfile().getName());
-    }
-
-    @Inject(method = "disconnect", at = @At(value = "RETURN"))
-    public void onLeave(Text reason, CallbackInfo ci) {
-        MINECRAFT_CONTROLLER.onPlayerLeave(player.getGameProfile().getName());
-    }
 
     @Inject(
             method = "handleMessage",
