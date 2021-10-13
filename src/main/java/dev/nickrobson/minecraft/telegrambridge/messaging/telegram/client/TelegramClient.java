@@ -36,7 +36,7 @@ public class TelegramClient {
     private static final Type updateListType = new TypeToken<TelegramResponse<List<Update>>>(){}.getType();
 
     private final Gson gson;
-    private final HttpClient httpClient;
+    private final Executor requestMakingExecutor;
 
     private CompletableFuture<Void> updatesFuture;
 
@@ -47,12 +47,16 @@ public class TelegramClient {
 
     public TelegramClient() {
         this.gson = new GsonBuilder().create();
-        Executor requestMakingExecutor = Executors.newSingleThreadScheduledExecutor(runnable -> {
-            Thread t = Executors.defaultThreadFactory().newThread(runnable);
-            t.setDaemon(true);
+
+        this.requestMakingExecutor = Executors.newSingleThreadExecutor(runnable -> {
+            Thread t = new Thread(runnable, "TelegramBridge Telegram Thread");
+            t.setDaemon(true); // allow the server to shutdown when this is still running
             return t;
         });
-        this.httpClient = HttpClient.newBuilder()
+    }
+
+    private HttpClient createHttpClient() {
+        return HttpClient.newBuilder()
                 .executor(requestMakingExecutor)
                 .build();
     }
@@ -78,10 +82,10 @@ public class TelegramClient {
 
     public void pollForUpdatesLoop() {
         this.updatesFuture = getUpdates()
-                .whenComplete((updates, exception) -> {
+                .handle((updates, exception) -> {
                     if (exception != null) {
                         logger.error("Failed to get updates", exception);
-                        return;
+                        return null;
                     }
 
                     try {
@@ -93,15 +97,14 @@ public class TelegramClient {
                         logger.error("Failed to handle updates", ex);
                     }
 
-                    for (Update update : updates) {
-                        if (update.updateId > currentOffset.get()) {
-                            this.currentOffset.set(update.updateId);
+                    try {
+                        for (Update update : updates) {
+                            if (update.updateId > currentOffset.get()) {
+                                this.currentOffset.set(update.updateId);
+                            }
                         }
-                    }
-                })
-                .handle((updates, exception) -> {
-                    if (exception != null) {
-                        logger.error("Exception in update loop", exception);
+                    } catch (Exception ex) {
+                        logger.error("Failed to set update offset", ex);
                     }
 
                     if (isUpdatesPolling.get()) {
@@ -164,7 +167,7 @@ public class TelegramClient {
             params.add(new AbstractMap.SimpleEntry<>("text", htmlEscapedMessage));
 
             return post("sendMessage", params)
-                    .thenAccept((response) -> {});
+                    .thenRun(() -> {});
         } catch (Exception ex) {
             logger.error(new MessageFormatMessage("Failed to send message to Telegram: (message: {})", message), ex);
             return CompletableFuture.failedFuture(ex);
@@ -179,7 +182,12 @@ public class TelegramClient {
             }
 
             String message = config.messages.serverShutdownMessage;
-            this.sendMessage(message);
+            this.sendMessage(message)
+                    .whenComplete((result, ex) -> {
+                        if (ex != null) {
+                            logger.error("Failed to send shutdown message", ex);
+                        }
+                    });
 
             this.isUpdatesPolling.set(false);
         }
@@ -192,7 +200,7 @@ public class TelegramClient {
                 .GET()
                 .build();
 
-        return httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString())
+        return createHttpClient().sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString())
                 .thenApply(response -> {
                     if (response.statusCode() != 200) {
                         logger.error("Error calling Telegram endpoint! {}\nResponse: {}", response.statusCode(), response.body());
@@ -208,7 +216,7 @@ public class TelegramClient {
                 .POST(HttpRequest.BodyPublishers.ofString(getQueryString(params)))
                 .build();
 
-        return httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString())
+        return createHttpClient().sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString())
                 .thenApply(response -> {
                     if (response.statusCode() != 200) {
                         logger.error("Error calling Telegram endpoint! {}\nResponse: {}", response.statusCode(), response.body());
