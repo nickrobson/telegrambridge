@@ -1,6 +1,6 @@
 package dev.nickrobson.minecraft.telegrambridge.mixin;
 
-import net.minecraft.server.filter.TextStream;
+import net.minecraft.network.message.SignedMessage;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -17,11 +17,11 @@ public class MixinServerPlayNetworkHandler {
     public ServerPlayerEntity player;
 
     @Inject(
-            method = "handleMessage",
-            at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/server/PlayerManager;broadcast(Lnet/minecraft/text/Text;Ljava/util/function/Function;Lnet/minecraft/network/MessageType;Ljava/util/UUID;)V")
+            method = "handleDecoratedMessage",
+            at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/server/PlayerManager;broadcast(Lnet/minecraft/network/message/SignedMessage;Lnet/minecraft/server/network/ServerPlayerEntity;Lnet/minecraft/network/message/MessageType$Parameters;)V")
     )
-    public void onChatMessage(TextStream.Message message, CallbackInfo ci) {
-        String messageText = message.getRaw();
+    public void onChatMessage(SignedMessage message, CallbackInfo ci) {
+        String messageText = message.getContent().getString();
         MINECRAFT_CONTROLLER.onPlayerChat(player.getGameProfile().getName(), messageText);
     }
 }
