@@ -11,7 +11,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.message.MessageFormatMessage;
 
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -50,7 +49,7 @@ public class TelegramClient {
 
         this.requestMakingExecutor = Executors.newSingleThreadExecutor(runnable -> {
             Thread t = new Thread(runnable, "TelegramBridge Telegram Thread");
-            t.setDaemon(true); // allow the server to shutdown when this is still running
+            t.setDaemon(true); // allow the server to shut down when this is still running
             return t;
         });
     }
@@ -209,7 +208,7 @@ public class TelegramClient {
                 });
     }
 
-    private CompletableFuture<String> post(String method, List<AbstractMap.SimpleEntry<String, Object>> params) throws IOException {
+    private CompletableFuture<String> post(String method, List<AbstractMap.SimpleEntry<String, Object>> params) {
         HttpRequest httpRequest = HttpRequest.newBuilder()
                 .uri(getTelegramApiUri(method, null))
                 .header("Content-Type", "application/x-www-form-urlencoded")

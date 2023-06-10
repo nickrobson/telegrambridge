@@ -1,15 +1,10 @@
 package dev.nickrobson.minecraft.telegrambridge.messaging;
 
-import java.nio.charset.StandardCharsets;
-import java.util.UUID;
-
 import static dev.nickrobson.minecraft.telegrambridge.config.TelegramBridgeConfig.getConfig;
 import static dev.nickrobson.minecraft.telegrambridge.messaging.MessagePlaceholders.PLACEHOLDER_MESSAGE;
 import static dev.nickrobson.minecraft.telegrambridge.messaging.MessagePlaceholders.PLACEHOLDER_USERNAME;
 
 public class MinecraftMessagingController {
-    public static UUID TELEGRAMBRIDGE_UUID = UUID.nameUUIDFromBytes("TelegramBridge".getBytes(StandardCharsets.UTF_8));
-
     private final MessageDispatcher messageDispatcher;
 
     public MinecraftMessagingController(MessageDispatcher messageDispatcher) {

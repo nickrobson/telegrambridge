@@ -20,6 +20,5 @@ public class TelegramMessageDispatcher implements MessageDispatcher {
                         logger.error("Failed to send message to Telegram", ex);
                     }
                 });
-        ;
     }
 }
