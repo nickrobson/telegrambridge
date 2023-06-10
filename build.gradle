@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.1-SNAPSHOT'
+    id 'fabric-loom' version '1.2-SNAPSHOT'
 }
 
 sourceCompatibility = JavaVersion.VERSION_17
@@ -22,15 +22,15 @@ dependencies {
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 
     compileOnly 'org.apache.commons:commons-lang3:3.12.0'
-    compileOnly 'org.apache.logging.log4j:log4j-api:2.17.0'
+    compileOnly 'org.apache.logging.log4j:log4j-api:2.19.0'
     compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
-    compileOnly 'com.google.code.gson:gson:2.8.9'
+    compileOnly 'com.google.code.gson:gson:2.10'
 
     // Fabric
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-    modApi("me.shedaniel.cloth:cloth-config-fabric:10.0.96") {
+    modApi("me.shedaniel.cloth:cloth-config-fabric:${project.clothconfig_version}") {
         exclude(group: "net.fabricmc.fabric-api")
     }
 }
